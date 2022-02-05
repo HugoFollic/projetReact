@@ -6,7 +6,6 @@ import * as React from 'react';
 import Button from "@material-ui/core/Button";
 import { makeStyles } from '@material-ui/core';
 import { useState } from "react";
-import Profile from './Profile';
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
@@ -75,6 +74,7 @@ const Login = (props) => {
   
   const onFinish = (values) => {
     setPersistence(auth, browserSessionPersistence).then(() => {
+      console.log(auth + " " + email + " " + password);
         signInWithEmailAndPassword(auth, email, password)
       .then((credentials) => {
         window.location.href = "./";

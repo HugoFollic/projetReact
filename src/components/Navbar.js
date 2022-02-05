@@ -74,7 +74,7 @@ const ResponsiveAppBar = (props) => {
     }
   });
 
-  if(user == true){
+  if(user === true){
     labels = labelsLogin;
   } else {
     labels = labelsLogout

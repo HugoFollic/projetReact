@@ -6,7 +6,6 @@ import { collection, addDoc, getFirestore } from "firebase/firestore";
 import TextField from '@mui/material/TextField';
 import Button from "@material-ui/core/Button";
 import { makeStyles } from '@material-ui/core';
-import AlertDialog from "./AlertDialog";
 
 const firebaseApp = initializeApp(firebaseConfig);
 const auth = getAuth(firebaseApp);
@@ -32,7 +31,6 @@ const useStyles = makeStyles(theme => ({
 
 const SignUp = () => {
   const classes = useStyles();
-  const [password, setPassword] = useState(false);
   const [state, setState] = useState();
   const inputLabels = [
     {
@@ -86,7 +84,7 @@ const SignUp = () => {
       message: "Veuillez saisir votre mot de passe",
       type: "password",
       action: (e) => {
-        setPassword(e.target.value);
+        setState({ ...state, password: e.target.value });
       },
       variant: "filled",
     },
@@ -107,9 +105,13 @@ const SignUp = () => {
     );
   };
   const onFinish = () => {
-    createUserWithEmailAndPassword(auth, state.email, password)
+    createUserWithEmailAndPassword(auth, state.email, state.password)
       .then((credentials) => {
-        addDoc(collection(db, "users"), state).then((doc) => console.log(doc));
+        const user = auth.currentUser;
+        state["uid"] = user.uid;
+        state["favoriteCoins"] = [];
+        addDoc(collection(db, "users"), state);
+
       })
       .then(() => {
         alert('Inscription terminée');

@@ -12,7 +12,7 @@ import { initializeApp } from 'firebase/app';
 import { firebaseConfig } from '../lib/firebaseCredentials';
 import StarBorderRoundedIcon from '@mui/icons-material/StarBorderRounded';
 import StarRoundedIcon from '@mui/icons-material/StarRounded';
-import { getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore"; 
+import { getFirestore, collection, getDocs, doc, updateDoc, arrayUnion, arrayRemove, query, where } from "firebase/firestore"; 
 import { Button } from '@mui/material';
 
 
@@ -36,33 +36,34 @@ function Home() {
 
     let [coins, setCoins] = useState([]);
     const [search, setSearch] = useState('');
-  
+    
     const getUser = async () => {
-      const querySnapshot = await getDocs(collection(db, "users"));
-      querySnapshot.forEach((document) => {
-        if(uid != null){
-          if(('"' + uid + '"') === document.data().uid){
-            const userData = document.data();
-            docu = document;
-            setUser(userData);
+        const q = query(collection(db, "users"),where("uid", "==", uid));
+        const querySnapshot = await getDocs(q);
+        querySnapshot.forEach((document) => {
+          if (uid != null) {
             
-            
+              const userData = document.data();
+              docu = document;
+              setUser(userData);
+                          
           }
-        }
-        
-      });
-    };
+
+        });
+      };
 
     useEffect(() => {
       
       getUser();
+      function addFavorite(coin) {
+        
 
-      var addFavorite = async (coin) => {
-        await updateDoc(doc(db, "users", docu.id), {favoriteCoins : arrayUnion(coin)});
+        updateDoc(doc(db, "users", docu.id), {favoriteCoins : arrayUnion(coin)});
       };
-  
-      var removeFavorite = async (coin) => {
-        await updateDoc(doc(db, "users", docu.id), {favoriteCoins : arrayRemove(coin)});
+
+      function removeFavorite(coin) {
+
+        updateDoc(doc(db, "users", docu.id), {favoriteCoins : arrayRemove(coin)});
       };
       
       axios
@@ -71,6 +72,7 @@ function Home() {
         )
         .then(res => {
           if (uid){
+
             for (let i = 0; i < res.data.length; i++) {
               res.data[i]['star'] = <Button onClick={() => { addFavorite(res.data[i]['name']); }}>
                                       <StarBorderRoundedIcon />
